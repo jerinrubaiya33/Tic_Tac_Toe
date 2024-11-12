@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <style>
+        /* Body styling */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+            background-image: url('https://www.shutterstock.com/shutterstock/videos/1084970536/thumb/1.jpg?ip=x480'); 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        /* Game container and board styling */
+        .game-container {
+            text-align: center;
+        }
+        #board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-gap: 5px;
+            margin: 20px auto;
+            justify-content: center;
+        }
+
+        #board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            justify-content: center;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 4.5rem;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+        }
+
+        /* Make the center row and column lines bold */
+        .cell:nth-child(2),
+        .cell:nth-child(5),
+        .cell:nth-child(8) {
+            border-left: 4px solid rgba(233, 198, 0.2); /* Bold vertical line in the middle */
+        }
+
+        .cell:nth-child(4),
+        .cell:nth-child(5),
+        .cell:nth-child(6) {
+            border-top: 4px solid rgba(233, 198, 0.2); /* Bold horizontal line in the middle */
+        }
+
+        /* Add right border to the last column and bottom border to the last row */
+        .cell:nth-child(2),
+        .cell:nth-child(5),
+        .cell:nth-child(8) {
+            border-right: 4px solid rgba(233, 198, 0.2);
+        }
+
+        .cell:nth-child(4),
+        .cell:nth-child(5),
+        .cell:nth-child(6) {
+            border-bottom: 4px solid rgba(233, 198, 0.2);
+        }
+
+        /* Optional hover effect */
+        /* .cell:hover {
+            background-color: rgb(233, 233, 233);; 
+        } */
+
+        /* Button styling */
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: rgb(73, 73, 73);
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: black;
+        }
+
+        
+        /* Modal styling */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            width: 300px;
+            animation: popIn 0.5s ease-out;
+        }
+
+        /* Pop-in animation */
+        @keyframes popIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Pop-in animation for winner message */
+        #winner-message {
+            animation: popIn 0.5s ease-out;
+        }
+
+/* Settings button styling */
+.settings {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: rgb(73, 73, 73);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px;
+    z-index: 20; /* Ensure it stays on top of other elements */
+    display: flex; /* Align the icon and text horizontally */
+    align-items: center; /* Center align the icon and text */
+}
+
+.settings:hover {
+    background-color: rgb(0, 0, 0);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 600px) {
+    /* Only show the settings icon and hide the text */
+    .settings {
+        top: 10px;
+        right: 10px;
+        padding: 7px 18px;
+        font-size: 28px;
+    }
+
+    .settings::after {
+        content: ""; /* Removes the text after the icon */
+    }
+
+    /* Hide the settings text on mobile */
+    .settings span {
+        display: none;
+    }
+
+    /* Adjust the game board for small screens */
+    #board {
+        grid-template-columns: repeat(3, 80px); /* Smaller cells */
+    }
+
+    /* Adjust status display for smaller screens */
+    #status {
+        font-size: 24px;
+    }
+
+    /* Make the restart button more accessible */
+    button {
+        font-size: 28px;
+        padding: 12px 25px;
+    }
+}
+
+
+
+    </style>
+</head>
+<body>
+    <!-- <div class="settings" onclick="openSettings()">⚙ Settings</div> -->
+    <div class="settings" onclick="openSettings()">
+        ⚙ <span>Settings</span> 
+    </div>
+    
+    <div class="game-container">
+        <h1 style="font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; font-size: 50px;color: rgb(73, 73, 73)">Tic Tac Toe</h1>
+        <div id="status" style="font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; font-size: 30px;color: black">Player X's turn</div>
+        
+        <div id="board"></div>
+        <button onclick="restartGame()" style="font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; font-size: 20px; margin-top: 10px;">Restart Game</button>
+    </div>
+
+    <!-- Winner Modal Structure -->
+    <div class="modal-overlay" id="winner-modal">
+        <div class="modal-content">
+            <h2 id="winner-message">Player X Wins!</h2>
+            <button onclick="closeWinnerModal()">Close</button>
+        </div>
+    </div>
+
+    <!-- Settings Modal Structure -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal-content">
+            <h2>Select Game Mode</h2>
+            <p>
+            <button onclick="setGameMode('single')">1 Player (vs Computer)</button>
+            </p>
+            <button onclick="setGameMode('single')">2 Players (with Friend)</button>
+            <p>
+            <button onclick="closeSettings('single')"> X Close</button>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const board = document.getElementById("board");
+        const statusDisplay = document.getElementById("status");
+        const settingsModal = document.getElementById("settings-modal");
+        const winnerModal = document.getElementById("winner-modal");
+        const winnerMessage = document.getElementById("winner-message");
+        let currentPlayer = "X";
+        let gameActive = true;
+        let gameState = ["", "", "", "", "", "", "", "", ""];
+        let gameMode = "";
+
+        const winningConditions = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6]
+        ];
+
+        function openSettings() {
+            settingsModal.style.display = "flex";
+        }
+
+        function closeSettings() {
+            settingsModal.style.display = "none";
+        }
+
+        function setGameMode(mode) {
+            gameMode = mode;
+            closeSettings();
+            restartGame();
+        }
+
+        function createBoard() {
+            board.innerHTML = "";
+            gameState.forEach((_, index) => {
+                const cell = document.createElement("div");
+                cell.classList.add("cell");
+                cell.setAttribute("data-index", index);
+                cell.addEventListener("click", handleCellClick);
+                board.appendChild(cell);
+            });
+        }
+
+        function handleCellClick(event) {
+            const clickedCell = event.target;
+            const clickedIndex = parseInt(clickedCell.getAttribute("data-index"));
+            if (gameState[clickedIndex] !== "" || !gameActive) return;
+
+            gameState[clickedIndex] = currentPlayer;
+            clickedCell.textContent = currentPlayer;
+
+            if (checkWinner()) {
+                winnerMessage.textContent = `Player ${currentPlayer} wins!`;
+                winnerModal.style.display = "flex"; // Show the winner modal
+                gameActive = false;
+                return;
+            }
+
+            if (!gameState.includes("")) {
+                winnerMessage.textContent = "Player X & O both Draw!";
+                winnerModal.style.display = "flex"; // Show the draw message
+                gameActive = false;
+                return;
+            }
+
+            currentPlayer = currentPlayer === "X" ? "O" : "X";
+            statusDisplay.textContent = `Player ${currentPlayer}'s turn`;
+
+            if (gameMode === "single" && currentPlayer === "O" && gameActive) {
+                setTimeout(computerMove, 500);
+            }
+        }
+
+        function computerMove() {
+            const availableCells = gameState
+                .map((cell, index) => (cell === "" ? index : null))
+                .filter(index => index !== null);
+
+            const randomIndex = availableCells[Math.floor(Math.random() * availableCells.length)];
+            gameState[randomIndex] = "O";
+
+            const cell = document.querySelector(`.cell[data-index='${randomIndex}']`);
+            cell.textContent = "O";
+
+            if (checkWinner()) {
+                winnerMessage.textContent = "Computer wins!";
+                winnerModal.style.display = "flex";
+                gameActive = false;
+                return;
+            }
+
+            if (!gameState.includes("")) {
+                winnerMessage.textContent = "Player X & O both Draw!";
+                winnerModal.style.display = "flex";
+                gameActive = false;
+                return;
+            }
+
+            currentPlayer = "X";
+            statusDisplay.textContent = `Player ${currentPlayer}'s turn`;
+        }
+
+        function checkWinner() {
+            return winningConditions.some(condition => {
+                const [a, b, c] = condition;
+                return gameState[a] && gameState[a] === gameState[b] && gameState[a] === gameState[c];
+            });
+        }
+
+        function restartGame() {
+            currentPlayer = "X";
+            gameActive = true;
+            gameState = ["", "", "", "", "", "", "", "", ""];
+            statusDisplay.textContent = `Player ${currentPlayer}'s turn`;
+            createBoard();
+            winnerModal.style.display = "none"; // Hide winner modal when restarting
+        }
+
+        function closeWinnerModal() {
+            winnerModal.style.display = "none";
+            restartGame(); // Restart the game after closing the winner modal
+        }
+
+        createBoard();
+    </script>
+</body>
+</html>
+
